@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberSaaS — Audit de sécurité automatisé pour PME</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+:root {
+  --bg: #050507;
+  --green: #00ff88;
+  --green2: #00cc6a;
+  --blue: #3d8bff;
+  --red: #ff4757;
+  --yellow: #ffd32a;
+  --text: #e0e2ea;
+  --muted: #5a5e6e;
+  --surface: #0d0f14;
+  --border: rgba(0,255,136,0.1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* GRID BG */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* SCANLINE EFFECT */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+  );
+  pointer-events:none;
+  z-index:0;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; position:relative; z-index:1; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; left:0; right:0;
+  z-index: 100;
+  padding: 20px 0;
+  background: rgba(5,5,7,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,255,136,0.06);
+}
+
+.nav-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 800;
+  color: var(--text);
+  text-decoration: none;
+}
+.logo span { color: var(--green); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em;
+  color: var(--muted); text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--green); }
+
+.btn-nav {
+  background: var(--green) !important;
+  color: var(--bg) !important;
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.btn-nav:hover { background: var(--green2) !important; box-shadow: 0 0 24px rgba(0,255,136,0.4); }
+
+/* ── HERO ── */
+.hero {
+  padding: 160px 0 100px;
+  position: relative;
+}
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--green);
+  background: rgba(0,255,136,0.06);
+  border: 1px solid rgba(0,255,136,0.15);
+  padding: 6px 14px;
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero-tag::before {
+  content:'';
+  width:6px; height:6px; border-radius:50%;
+  background:var(--green);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(42px, 7vw, 80px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: 28px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+h1 .accent { color: var(--green); }
+h1 .dim { color: var(--muted); }
+
+.hero-sub {
+  font-size: 18px; font-weight: 300;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 520px;
+  margin-bottom: 48px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.hero-cta {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+
+.btn-primary {
+  background: var(--green);
+  color: var(--bg);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 16px 32px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+
+.btn-primary:hover { background: var(--green2); box-shadow: 0 0 40px rgba(0,255,136,0.4); }
+.btn-primary:hover::after { transform: translateX(100%); }
+
+.btn-secondary {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; letter-spacing: 0.1em;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: color 0.2s;
+}
+.btn-secondary:hover { color: var(--text); }
+
+/* HERO VISUAL */
+.hero-visual {
+  position: absolute;
+  right: -40px; top: 120px;
+  width: 520px;
+  opacity: 0.6;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+
+.terminal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  background: #0a0c10;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.dot { width:10px; height:10px; border-radius:50%; }
+.dot-r { background:#ff5f57; }
+.dot-y { background:#febc2e; }
+.dot-g { background:#28c840; }
+
+.terminal-body { padding: 20px; }
+
+.t-line {
+  padding: 3px 0;
+  opacity: 0;
+  animation: typeIn 0.3s ease forwards;
+}
+
+.t-green { color: var(--green); }
+.t-blue { color: var(--blue); }
+.t-red { color: var(--red); }
+.t-yellow { color: var(--yellow); }
+.t-muted { color: var(--muted); }
+
+.t-line:nth-child(1)  { animation-delay: 0.8s; }
+.t-line:nth-child(2)  { animation-delay: 1.0s; }
+.t-line:nth-child(3)  { animation-delay: 1.2s; }
+.t-line:nth-child(4)  { animation-delay: 1.4s; }
+.t-line:nth-child(5)  { animation-delay: 1.6s; }
+.t-line:nth-child(6)  { animation-delay: 1.8s; }
+.t-line:nth-child(7)  { animation-delay: 2.0s; }
+.t-line:nth-child(8)  { animation-delay: 2.2s; }
+.t-line:nth-child(9)  { animation-delay: 2.4s; }
+.t-line:nth-child(10) { animation-delay: 2.6s; }
+.t-line:nth-child(11) { animation-delay: 2.8s; }
+.t-line:nth-child(12) { animation-delay: 3.0s; }
+.t-line:nth-child(13) { animation-delay: 3.2s; }
+
+@keyframes typeIn { to { opacity:1; } }
+
+/* STATS */
+.stats {
+  display: flex; gap: 48px; flex-wrap: wrap;
+  padding: 48px 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin: 80px 0;
+  animation: fadeUp 0.6s 0.5s ease both;
+}
+
+.stat-item { }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px; font-weight: 800;
+  color: var(--green); line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* ── FEATURES ── */
+.section { padding: 100px 0; }
+
+.section-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; margin-bottom: 20px;
+}
+
+.section-sub {
+  font-size: 16px; color: var(--muted);
+  line-height: 1.7; max-width: 480px;
+  font-weight: 300; margin-bottom: 64px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.feature-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0;
+  height:2px;
+  background: var(--card-color, var(--green));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+
+.feature-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-4px); }
+.feature-card:hover::before { transform: scaleX(1); }
+
+.feature-icon {
+  font-size: 28px; margin-bottom: 20px;
+  display: block;
+}
+
+.feature-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700;
+  margin-bottom: 10px; line-height: 1.3;
+}
+
+.feature-desc {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.7; font-weight: 300;
+}
+
+.feature-tag {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: rgba(0,255,136,0.06);
+  border: 1px solid rgba(0,255,136,0.15);
+  color: var(--green);
+}
+
+/* ── HOW IT WORKS ── */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  position: relative;
+}
+
+.step-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 28px;
+}
+
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 48px; font-weight: 800;
+  color: rgba(0,255,136,0.1);
+  line-height: 1; margin-bottom: 16px;
+}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.step-desc {
+  font-size: 12px; color: var(--muted);
+  line-height: 1.6; font-weight: 300;
+}
+
+/* ── PROOF ── */
+.proof-section {
+  padding: 100px 0;
+  background: linear-gradient(180deg, transparent, rgba(0,255,136,0.02), transparent);
+}
+
+.proof-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.proof-items { display: flex; flex-direction: column; gap: 16px; }
+
+.proof-item {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-left: 3px solid var(--green);
+  padding: 20px 24px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+
+.proof-icon { font-size: 20px; flex-shrink:0; padding-top:2px; }
+
+.proof-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.proof-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* SCORE VISUAL */
+.score-visual {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 40px;
+  text-align: center;
+}
+
+.score-big-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 100px; font-weight: 800;
+  color: var(--green); line-height: 1;
+  margin-bottom: 8px;
+}
+
+.score-label-big {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 32px;
+}
+
+.score-bars { display: flex; flex-direction:column; gap: 12px; text-align:left; }
+
+.score-bar-item { }
+.score-bar-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em;
+  text-transform:uppercase;
+  display:flex; justify-content:space-between;
+  margin-bottom: 6px; color: var(--muted);
+}
+.score-bar-track {
+  height:4px; background:rgba(255,255,255,0.06);
+  border-radius:2px; overflow:hidden;
+}
+.score-bar-fill { height:100%; border-radius:2px; }
+
+/* ── CTA ── */
+.cta-section {
+  padding: 120px 0;
+  text-align: center;
+  position: relative;
+}
+
+.cta-section::before {
+  content:'';
+  position:absolute; top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  width:600px; height:600px;
+  background: radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.cta-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 20px; line-height: 1.1;
+}
+
+.cta-sub {
+  font-size: 16px; color: var(--muted);
+  font-weight: 300; margin-bottom: 48px;
+}
+
+.cta-free {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing:0.1em;
+  text-transform:uppercase; color: var(--muted);
+  margin-top: 20px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.04);
+  padding: 32px 0;
+}
+
+.footer-inner {
+  display:flex; justify-content:space-between; align-items:center;
+  max-width:1100px; margin:0 auto; padding:0 32px;
+}
+
+.footer-logo {
+  font-family:'Syne',sans-serif; font-size:16px; font-weight:800;
+  color:var(--text); text-decoration:none;
+}
+.footer-logo span { color:var(--green); }
+
+.footer-text {
+  font-family:'Share Tech Mono',monospace; font-size:10px;
+  letter-spacing:0.08em; color:var(--muted);
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  .hero-visual { display:none; }
+  .features-grid { grid-template-columns:1fr; }
+  .how-grid { grid-template-columns:1fr 1fr; }
+  .proof-grid { grid-template-columns:1fr; }
+  .stats { gap:32px; }
+  h1 { font-size:38px; }
+  .nav-links { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">Cyber<span>SaaS</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Fonctionnalites</a></li>
+      <li><a href="#how">Comment ca marche</a></li>
+      <li><a href="#proof">Pourquoi nous</a></li>
+    </ul>
+    <a href="https://cybersaas-9x6fr3rfappptavjp6cm5ad.streamlit.app/" target="_blank" class="btn-nav">
+      Audit gratuit →
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-tag">// Securite cyber pour PME · 100% automatise</div>
+
+    <h1>
+      Votre securite<br>
+      <span class="accent">analysee</span><br>
+      <span class="dim">en 5 minutes.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Scan reseau, audit Azure AD, analyse IA de vos logs —
+      un rapport professionnel pret pour vos clients, auditeurs et appels d'offres.
+    </p>
+
+    <div class="hero-cta">
+      <a href="https://cybersaas-9x6fr3rfappptavjp6cm5ad.streamlit.app/" target="_blank" class="btn-primary">
+        Lancer mon audit gratuit
+      </a>
+      <a href="#how" class="btn-secondary">
+        <span>Voir comment ca marche</span>
+        <span>↓</span>
+      </a>
+    </div>
+
+    <!-- Terminal -->
+    <div class="hero-visual">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span style="margin-left:8px;font-family:Share Tech Mono,monospace;font-size:10px;color:#3a3d4e;">cybersaas · scan engine v3</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-line t-muted">$ cybersaas --target acme.fr --full-scan</div>
+          <div class="t-line t-green">✓ Connexion etablie → acme.fr</div>
+          <div class="t-line t-muted">  Scan reseau en cours...</div>
+          <div class="t-line t-red">✗ PORT 3389 ouvert — RDP expose</div>
+          <div class="t-line t-red">✗ PORT 445 ouvert — SMB vulnerable</div>
+          <div class="t-line t-green">✓ SSL valide — 89 jours restants</div>
+          <div class="t-line t-muted">  Analyse Azure AD...</div>
+          <div class="t-line t-red">✗ 3 admins sans MFA — CRITIQUE</div>
+          <div class="t-line t-yellow">⚠ 7 comptes inactifs detectes</div>
+          <div class="t-line t-yellow">⚠ Auth legacy non bloquee</div>
+          <div class="t-line t-muted">  Evaluation conformite...</div>
+          <div class="t-line t-yellow">⚠ NIS2 : plan de continuite absent</div>
+          <div class="t-line t-green">→ Score global : 54/100 · Rapport genere</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="container">
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-num">5 min</div>
+      <div class="stat-label">Pour un audit complet</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Modules d'analyse</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Automatise</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0€</div>
+      <div class="stat-label">Pour commencer</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-tag">// Fonctionnalites</div>
+    <h2 class="section-title">Tout ce dont une PME<br>a besoin pour se proteger</h2>
+    <p class="section-sub">Trois modules complementaires qui remplacent un cabinet de conseil a 5 000€ la journee.</p>
+
+    <div class="features-grid">
+      <div class="feature-card" style="--card-color:#3d8bff;">
+        <span class="feature-icon">🌐</span>
+        <div class="feature-title">Scan reseau automatise</div>
+        <div class="feature-desc">Ports ouverts, services exposes, certificat SSL, services dangereux — analyse complete en moins de 2 minutes sur votre domaine ou IP.</div>
+        <div class="feature-tag">Automatique</div>
+      </div>
+
+      <div class="feature-card" style="--card-color:#00ff88;">
+        <span class="feature-icon">🔐</span>
+        <div class="feature-title">Audit Azure AD & Active Directory</div>
+        <div class="feature-desc">MFA, comptes inactifs, admins exposes, policies de securite, appareils non conformes — tout ce que votre DSI devrait verifier chaque semaine.</div>
+        <div class="feature-tag">Automatique</div>
+      </div>
+
+      <div class="feature-card" style="--card-color:#a78bfa;">
+        <span class="feature-icon">🤖</span>
+        <div class="feature-title">Analyse IA de vos fichiers</div>
+        <div class="feature-desc">Uploadez vos logs, configs firewall, exports AD — notre IA analyse automatiquement et detecte les vulnerabilites que personne ne lit.</div>
+        <div class="feature-tag">Alimente par IA</div>
+      </div>
+
+      <div class="feature-card" style="--card-color:#ffd32a;">
+        <span class="feature-icon">📋</span>
+        <div class="feature-title">Conformite RGPD · NIS2 · ISO 27001</div>
+        <div class="feature-desc">Score de conformite par referentiel, ecarts identifies, recommandations priorisees. Exactement ce qu'attend votre auditeur.</div>
+        <div class="feature-tag">20 verifications</div>
+      </div>
+
+      <div class="feature-card" style="--card-color:#ff4757;">
+        <span class="feature-icon">📄</span>
+        <div class="feature-title">Rapport PDF professionnel</div>
+        <div class="feature-desc">Un rapport signe, avec votre logo, score global et recommandations — pret a envoyer a vos clients, partenaires ou auditeurs.</div>
+        <div class="feature-tag">Telechargeable</div>
+      </div>
+
+      <div class="feature-card" style="--card-color:#00e5ff;">
+        <span class="feature-icon">📊</span>
+        <div class="feature-title">Dashboard & historique</div>
+        <div class="feature-desc">Suivez l'evolution de votre score dans le temps. Chaque scan est sauvegarde — montrez vos progres a votre direction ou vos clients.</div>
+        <div class="feature-tag">Historique complet</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how" style="padding-top:0;">
+  <div class="container">
+    <div class="section-tag">// Comment ca marche</div>
+    <h2 class="section-title">De zero a l'audit<br>en 4 etapes</h2>
+    <p class="section-sub">Aucune installation. Aucun agent. Aucune competence technique requise.</p>
+
+    <div class="how-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Cree ton compte</div>
+        <div class="step-desc">30 secondes. Email + mot de passe. Aucune CB, aucun engagement.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Entre ton domaine</div>
+        <div class="step-desc">Ton domaine, ton IP ou le nom de ton entreprise. Le scan demarre instantanement.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Analyse en 5 min</div>
+        <div class="step-desc">Reseau, Azure AD, conformite — trois modules en parallele. Score global automatique.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-title">Telecharge le rapport</div>
+        <div class="step-desc">PDF professionnel pret. Partage-le a ton client ou utilise-le pour ton audit interne.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="proof-section" id="proof">
+  <div class="container">
+    <div class="proof-grid">
+      <div>
+        <div class="section-tag">// Pourquoi CyberSaaS</div>
+        <h2 class="section-title">La cyber n'est plus<br>reservee aux grandes boites</h2>
+        <p class="section-sub" style="margin-bottom:32px;">
+          80% des cyberattaques visent des PME. Pourtant les outils existants sont soit trop complexes, soit trop chers.
+        </p>
+        <div class="proof-items">
+          <div class="proof-item">
+            <div class="proof-icon">⚡</div>
+            <div>
+              <div class="proof-title">Resultat immediat</div>
+              <div class="proof-desc">Pas de consultants, pas d'attente. Le scan tourne en 5 minutes et le rapport est pret.</div>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">🎯</div>
+            <div>
+              <div class="proof-title">Concu pour les PME</div>
+              <div class="proof-desc">Langage clair, recommandations actionnables, pas de jargon incomprehensible.</div>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">🔒</div>
+            <div>
+              <div class="proof-title">Conforme RGPD</div>
+              <div class="proof-desc">Donnees hebergees en Europe. Aucune donnee sensible stockee sans votre consentement.</div>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">🆓</div>
+            <div>
+              <div class="proof-title">100% gratuit pour commencer</div>
+              <div class="proof-desc">Acces complet sans carte bancaire. Passez en Pro quand vous en avez besoin.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-visual">
+        <div class="score-big-num">72</div>
+        <div class="score-label-big">Score de securite global · /100</div>
+        <div class="score-bars">
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>Reseau</span><span style="color:#ffd32a;">68</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:68%;background:#ffd32a;"></div></div>
+          </div>
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>Azure AD / Acces</span><span style="color:#ff4757;">54</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:54%;background:#ff4757;"></div></div>
+          </div>
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>Conformite RGPD</span><span style="color:#00ff88;">85</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:85%;background:#00ff88;"></div></div>
+          </div>
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>Conformite NIS2</span><span style="color:#ffd32a;">61</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:61%;background:#ffd32a;"></div></div>
+          </div>
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>ISO 27001</span><span style="color:#ffd32a;">70</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:70%;background:#ffd32a;"></div></div>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a3d4e;text-align:left;">
+          Exemple de rapport genere automatiquement · ACME SAS · Avril 2026
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="section-tag" style="justify-content:center;display:flex;">// Commencer maintenant</div>
+    <h2 class="cta-title">Ton audit de securite<br><span style="color:var(--green);">commence ici.</span></h2>
+    <p class="cta-sub">Gratuit. Sans installation. Sans CB. En 5 minutes.</p>
+    <a href="https://cybersaas-9x6fr3rfappptavjp6cm5ad.streamlit.app/" target="_blank" class="btn-primary" style="font-size:16px;padding:20px 48px;">
+      Lancer mon audit gratuit →
+    </a>
+    <div class="cta-free">Aucune carte bancaire requise · 100% gratuit</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a href="#" class="footer-logo">Cyber<span>SaaS</span></a>
+    <div class="footer-text">Audit cyber automatise pour PME · 2026</div>
+    <div class="footer-text">Construit par un SOC analyst · France</div>
+  </div>
+</footer>
+
+</body>
+</html>
