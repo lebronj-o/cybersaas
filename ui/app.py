@@ -152,6 +152,11 @@ C_WHITE  = "#fafafa"
 def pc(): return {"displayModeBar": False, "responsive": True}
 
 def sc(s):
+  def sc(s):
+    try:
+        s = int(s)
+    except (TypeError, ValueError):
+        return "#52525b"
     if s >= 80: return C_GREEN
     if s >= 50: return C_YELLOW
     return C_RED
